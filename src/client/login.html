@@ -1,0 +1,93 @@
+<!doctype html>
+
+<html lang="en" ng-app>
+  <head>
+    <title>Reddit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/bootstrap.min.css?v2">
+    <link rel="stylesheet" href="../css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="../css/font-awesome.min.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/login.css">
+    
+  </head>
+  <body onload="" class="clearfix" style="background-color: #C8D4DF">
+  	<script type="text/javascript" src="../ndn-js/build/ndn.js"></script>
+        <script type="text/javascript">
+            var face = new Face({host: "localhost"});
+
+            function onTimeout(self,interest){
+                console.log("NDN-JS: TIMEOUT for " + interest.getName());
+            }
+             
+            function onLoginData(self,interest,data){
+                var res = data.getContent().toString()
+                console.log(res);
+                if(res === "Authenticated"){
+                    console.log("Login Success");
+                    window.location.href = "home.html"
+                }else{
+                    console.log("Login Failed");
+                    document.getElementById('error').innerHTML = res + "<br/>"
+                }   
+            }
+
+            function login(){
+                var userVal = document.getElementById('user').value;
+                var passwordVal = document.getElementById('password').value;
+                var user = {username:userVal,password:passwordVal};
+                interest = new Interest(new Name("/reddit/login").append(user.username));
+                interest.setMustBeFresh(true);
+                interest.setParameters(new Blob(JSON.stringify(user)));
+                face.expressInterest(interest,function(interest,data){
+                    onLoginData(self,interest,data);
+                },function(interest){
+                    onTimeout(self,interest);
+                });
+            }
+
+        </script>
+    <main>
+      <div class="container" >
+        <div class="col-md-9 center-block vertical-align">
+          <div class="row">
+            <div class="col-md-7 hidden-sm hidden-xs">
+              <div class="row">
+                <div class="animation ">
+                  <img src="../img/login/reddit.png" alt="Iphones" class="img-responsive">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-5 col-sm-12 col-xs-12">
+              <div class="login-container clearfix">
+                <a href="/" class="logolink">
+                  <img src="../img/reddit-logo.png" class="logotext" width="150">
+                </a>
+                <p class="text-center description-page">The front page of internet.<br>Please insert your data to login:</p>
+                <div class="bg-danger">
+                  <p id="error"></p>
+                </div>
+                
+                <form id="form">
+                  <div class="form-group">
+                    <input type="text" class="form-control" id="user" placeholder="Username">
+                  </div>
+                  <div class="form-group">
+                    <input type="password" class="form-control" id="password" placeholder="Password">
+                  </div>
+                  
+                  <hr>
+                </form>
+                <button class="btn btn-blue" onclick="login()">Submit</button>
+              </div>
+              <a href="signin.html" class="login-container col-md-12 pull-left">Don't have an account? Join here.</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/login.js"></script>
+  </body>
+</html>
